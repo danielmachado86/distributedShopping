@@ -1,0 +1,7 @@
+/**
+ * productInStock
+ */
+public class ProductInStock {
+
+    
+}
