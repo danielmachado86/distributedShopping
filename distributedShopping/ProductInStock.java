@@ -1,7 +1,0 @@
-/**
- * productInStock
- */
-public class ProductInStock {
-
-    
-}

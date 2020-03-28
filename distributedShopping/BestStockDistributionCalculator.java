@@ -1,8 +1,0 @@
-/**
- * BasketManager
- */
-
- public class BestStockDistributionCalculator {
-        
-    
-}
