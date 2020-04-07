@@ -23,11 +23,11 @@ public class TestEnvironment {
     
     private TestLogger testLogger;
     
-    DatabaseConfiguration database;
+    Database database;
 
     static final String TEST_DATA_FOLDER = "src/test/java/com/company/resources/";
     
-    public TestEnvironment(DatabaseConfiguration database) { 
+    public TestEnvironment(Database database) { 
 
         this.database = database;
 
@@ -38,21 +38,23 @@ public class TestEnvironment {
     }
 
     public void initialize() {
-        new jdbcProcessorTemplate().processConnection(database, new jdbcConnectionProcessor(){
+        jdbcProcessorTemplate jdbcProcessor = new jdbcProcessorTemplate(database);
+        jdbcProcessor.setLogger(testLogger);
+        jdbcProcessor.connection(new jdbcConnectionProcessor(){
         
             @Override
-            public void processConnection(Connection connection) throws SQLException {
+            public void connection() throws SQLException {
 
                 String sql = "DROP SCHEMA public CASCADE;";
-                new jdbcProcessorTemplate().processCreateStatement(sql, database, new jdbcCreateStatementProcessor(){
+                jdbcProcessor.createStatement(sql, new jdbcCreateStatementProcessor(){
                 
                     @Override
-                    public void processCreateStatement() throws SQLException {
+                    public void createStatement() throws SQLException {
                         testLogger.newEntry("Se eliminaron todos los objetos de la base de datos");
                     }
                 });
-                createTestObjects(connection);
-                populateTestData(connection);
+                createTestObjects(jdbcProcessor.getConnection());
+                populateTestData(jdbcProcessor.getConnection());
             }
         });
     }

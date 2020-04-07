@@ -12,15 +12,21 @@ import java.sql.ResultSet;
 
 public class jdbcProcessorTemplate {
 
-    public void processConnection(DatabaseConfiguration database, jdbcConnectionProcessor processor) {
+    private Logger logger;
+    private Database database;
+    private Connection connection;
+
+    public jdbcProcessorTemplate(Database database) {
+        this.database = database;
+	}
+
+	public Connection connection(jdbcConnectionProcessor processor) {
         SQLException processSQLException = null;
-        Connection connection = null;
-        Logger logger = database.getLogger();
+        connection = null;
         try {
             connection = DriverManager.getConnection(database.getURL(), database.getUsername(), database.getPassword());
-            database.setConnection(connection);
             logger.newEntry("Base de datos conectada");
-            processor.processConnection(connection);
+            processor.connection();
         } catch (SQLException e) {
             processSQLException = e;
         } finally {
@@ -40,19 +46,18 @@ public class jdbcProcessorTemplate {
                 logger.newEntry(processSQLException.getMessage());
             }
         }
+        return connection;
     }
     
-    public void processCreateStatement(String sql, DatabaseConfiguration database, jdbcCreateStatementProcessor processor) {
+    public void createStatement(String sql, jdbcCreateStatementProcessor processor) {
         SQLException processSQLException = null;
         Statement statement = null;
-        Connection connection = database.getConnection();
-        Logger logger = database.getLogger();
         try {
             statement = connection.createStatement();
             logger.newEntry("Nuevo Statement creado");
             statement.execute(sql);
             logger.newEntry("Statement ejecutado");
-            processor.processCreateStatement();
+            processor.createStatement();
         } catch (SQLException e) {
             processSQLException = e;
         } finally {
@@ -74,17 +79,15 @@ public class jdbcProcessorTemplate {
         }
     } 
     
-    public void processStatement(String sql, DatabaseConfiguration database, jdbcStatementProcessor processor) {
+    public void statement(String sql, jdbcStatementProcessor processor) {
         SQLException processSQLException = null;
         PreparedStatement statement = null;
-        Connection connection = database.getConnection();
-        Logger logger = database.getLogger();
         try {
             statement = connection.prepareStatement(sql);
             logger.newEntry("Nuevo Statement creado");
             ResultSet resultSet = statement.executeQuery();
             logger.newEntry("Query Statement ejecutado");
-            processor.processStatement(resultSet);
+            processor.statement(resultSet);
         } catch (SQLException e) {
             processSQLException = e;
         } finally {
@@ -104,5 +107,13 @@ public class jdbcProcessorTemplate {
                 }
             }
         }
+    }
+
+	public void setLogger(Logger logger) {
+        this.logger = logger;
+    } 
+    
+    public Connection getConnection() {
+        return connection;
     } 
 }

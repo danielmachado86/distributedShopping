@@ -1,16 +1,9 @@
 package com.company.processor;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.company.database.DatabaseConfiguration;
-import com.company.database.jdbcConnectionProcessor;
-import com.company.database.jdbcProcessorTemplate;
-import com.company.database.jdbcStatementProcessor;
-import com.company.resources.Logger;
+import com.company.database.Database;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,42 +15,20 @@ public class Search {
 
     private static final int USELESS_KEYWORD_LENGTH = 2;
 
-    private DatabaseConfiguration database;
-    private Logger logger;
+    private Database database;
 
-    public Search(DatabaseConfiguration database){
+    public Search(Database database){
         this.database = database;
-
-        logger = database.getLogger();
     }
 
     public List<SearchResult> go(String searchString) {
-        List<String> arrayListOfValidKeywords = processSearchString(searchString);
-        List<String> results = productQuery(arrayListOfValidKeywords);
-        List<SearchResult> processedResults = processSearchResults(searchString, results);
-        return processedResults;
-    }
-
-    public List<String> productQuery(List<String> keywords) {
-        List<String> results = new ArrayList<String>();
-        new jdbcProcessorTemplate().processConnection(database, new jdbcConnectionProcessor(){
-            
-            @Override
-            public void processConnection(Connection connection) throws SQLException {
-                String sql = buildQueryString(keywords);
-                logger.newEntry("Generado SQL statement: " + sql);
-                new jdbcProcessorTemplate().processStatement(sql, database, new jdbcStatementProcessor(){
-                    
-                    @Override
-                    public void processStatement(ResultSet resultSet) throws SQLException {
-                        while (resultSet.next()){
-                            results.add(resultSet.getString(3));
-                        }
-                    }
-                });
-            }
-        });
-        return results;
+        List<String> validKeywords = getValidKeywords(searchString);
+        String sql = buildQueryString(validKeywords);
+        List<String> results = database.query(sql);
+        List<SearchResult> resultsAsObjects = getResultsAsObjects(results);
+        List<SearchResult> processedResults = calculateStringSimilarity(searchString, resultsAsObjects);
+        List<SearchResult> sortedResults = sortResults(processedResults);
+        return sortedResults;
     }
 
     private String buildQueryString(List<String> keywords) {
@@ -75,44 +46,60 @@ public class Search {
         return sql;
     }
 
-    private List<String> processSearchString(String searchString) {
+    private List<String> getValidKeywords(String searchString) {
         String lowerCaseSearchString = 
             searchString.toLowerCase();
-        String arrayOfKeywords[] = 
+        String keywords[] = 
             splitSearchStringBySpace(lowerCaseSearchString);
         List<String> arrayListOfKeywords = 
-            convertStringArrayToArrayList(arrayOfKeywords);
-        List<String> arrayListOfValidKeywords = 
+            convertStringArrayToArrayList(keywords);
+        List<String> validKeywords = 
             removeSmallKeywords(arrayListOfKeywords);
-        return arrayListOfValidKeywords;
+        return validKeywords;
     }
 
-    private List<SearchResult> processSearchResults(String searchString, List<String> results) {
+    private List<SearchResult> getResultsAsObjects(List<String> results){
         String result = null;
-        List<SearchResult> unsortedList = new ArrayList<>();
+        List<SearchResult> resultsAsObjects = new ArrayList<>();
         Iterator<String> itr = results.iterator();
         while(itr.hasNext()){
             result = itr.next();
-            JaroWinklerDistance distanceContainer = 
-            new JaroWinklerDistance();
-            Double distanceIndex = 
-            distanceContainer.apply(
-                searchString.toLowerCase(), result.toLowerCase()
-                );
-            SearchResult sr = new SearchResult(result, distanceIndex);
-            unsortedList.add(sr);
+            SearchResult sr = new SearchResult(result);
+            resultsAsObjects.add(sr);
         }
             
-        Collections.sort(unsortedList);
-        Collections.reverse(unsortedList);
-        Iterator<SearchResult> itr1 = unsortedList.iterator();
+        return resultsAsObjects;
+    }
+
+    private List<SearchResult> calculateStringSimilarity(String searchString, List<SearchResult> results) {
+        SearchResult result = null;
+        String title = null;
+        Iterator<SearchResult> itr = results.iterator();
+        while(itr.hasNext()){
+            result = itr.next();
+            title = result.getTitle();
+            JaroWinklerDistance distanceContainer = new JaroWinklerDistance();
+            Double distanceIndex = 
+            distanceContainer.apply(
+                searchString.toLowerCase(), title.toLowerCase()
+            );
+            result.setSimilarity(distanceIndex);
+        }
+            
+        return results;
+    }
+
+    private List<SearchResult> sortResults(List<SearchResult> results) {
+        Collections.sort(results);
+        Collections.reverse(results);
+        Iterator<SearchResult> itr1 = results.iterator();
         SearchResult sr = null;
         String format = "%-48s%s%n";
         while(itr1.hasNext()){
             sr = itr1.next();
             System.out.printf(format, "Producto: " + sr.getTitle(), "Similaridad: " + sr.getSimilarity().toString());
         }
-        return unsortedList;
+        return results;
     }
 
     private static String[] splitSearchStringBySpace(String searchString) {
@@ -143,11 +130,10 @@ public class Search {
 class SearchResult implements Comparable<SearchResult>{
 
     private String title;
-    private Double similarity;
+    private Double similarity = null;
 
-    SearchResult(String title, Double similarity) {
+    SearchResult(String title) {
         this.title = title;
-        this.similarity = similarity;
     }
 
     @Override
@@ -155,8 +141,8 @@ class SearchResult implements Comparable<SearchResult>{
         return this.getSimilarity().compareTo(o.getSimilarity());
     }
 
-    public Double setSimilarity(Double similarity) {
-        return similarity;
+    public void setSimilarity(Double similarity) {
+        this.similarity = similarity;
     }
 
     public Double getSimilarity() {
