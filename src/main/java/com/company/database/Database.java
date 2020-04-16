@@ -1,10 +1,13 @@
 package com.company.database;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import com.company.resources.Logger;
+import com.company.resources.ProductionLogger;
 
 public class Database {
 
@@ -13,31 +16,33 @@ public class Database {
     private String username;
     private String password;
 
-    private Logger logger;
+    private jdbcProcessorTemplate jdbcProcessor;
+    private Logger logger = new ProductionLogger();
     
     public Database(String url, String username, String password){
-        setURL(url);
-        setUsername(username);
-        setPassword(password);
-
+        this.url = url;
+        this.username = username;
+        this.password = password;
     }
-
-    public ArrayList<String> query(String sql) {
-        ArrayList<String> results = new ArrayList<String>();
-        jdbcProcessorTemplate jdbcProcessor = new jdbcProcessorTemplate(this);
-        jdbcProcessor.setLogger(logger);
+    
+    public ArrayList<HashMap<String, Object>> query(String sql) {
+        ArrayList<HashMap<String, Object>> results = new ArrayList<HashMap<String, Object>>();
         jdbcProcessor.connection(new jdbcConnectionProcessor(){
-            
             @Override
             public void connection() throws SQLException {
-                logger.newEntry("Generado SQL statement: " + sql);
                 jdbcProcessor.statement(sql, new jdbcStatementProcessor(){
-                    
                     @Override
                     public void statement(ResultSet resultSet) throws SQLException {
+                        ResultSetMetaData metaData = resultSet.getMetaData();
+                        int columns = metaData.getColumnCount();
                         while (resultSet.next()){
-                            results.add(resultSet.getString(3));
+                            HashMap<String, Object> row = new HashMap<String, Object>(columns);
+                            for(int i=1; i<=columns; ++i){           
+                                row.put(metaData.getColumnName(i),resultSet.getObject(i));
+                            }
+                            results.add(row);
                         }
+
                     }
                 });
             }
@@ -52,6 +57,10 @@ public class Database {
     public Logger getLogger(){
         return this.logger;
     }
+    
+    public jdbcProcessorTemplate getJdbcProcessor(){
+        return this.jdbcProcessor;
+    }
 
     public String getURL() {
         return url;
@@ -65,15 +74,11 @@ public class Database {
         return password;
     }
     
-    public void setURL(String url) {
-        this.url = url;
+	public void setJdbcProcessor(jdbcProcessorTemplate jdbcProcessor) {
+        this.jdbcProcessor = jdbcProcessor;
     }
     
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void newJdbcProcessor(jdbcProcessorTemplate jdbcProcessor) {
+        this.jdbcProcessor = new jdbcProcessorTemplate(this);
+	}
 }

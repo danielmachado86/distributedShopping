@@ -1,31 +1,35 @@
 package com.company.processor;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.company.database.Database;
+import com.company.resources.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import org.apache.commons.text.similarity.*;
-
 
 public class Search {
 
     private static final int USELESS_KEYWORD_LENGTH = 2;
 
     private Database database;
+    private Logger logger;
 
-    public Search(Database database){
+    public Search(Database database) {
         this.database = database;
+        logger = database.getLogger();
     }
 
-    public List<SearchResult> go(String searchString) {
+    public List<SearchResult> go(String searchString) throws SQLException {
         List<String> validKeywords = getValidKeywords(searchString);
-        String sql = buildQueryString(validKeywords);
-        List<String> results = database.query(sql);
-        List<SearchResult> resultsAsObjects = getResultsAsObjects(results);
+        String sqlString = buildQueryString(validKeywords);
+        List<HashMap<String, Object>> dbResults = database.query(sqlString);
+        List<SearchResult> resultsAsObjects = getResultsAsObjects(dbResults);
         List<SearchResult> processedResults = calculateStringSimilarity(searchString, resultsAsObjects);
         List<SearchResult> sortedResults = sortResults(processedResults);
         return sortedResults;
@@ -37,35 +41,32 @@ public class Search {
         while (itr.hasNext()) {
             String keyword = itr.next();
             String logicOp = "";
-            if(itr.hasNext()){
+            if (itr.hasNext()) {
                 logicOp = " OR ";
             }
             likeStatement = likeStatement + "title ~~* " + "'%" + keyword + "%'" + logicOp;
         }
         String sql = "SELECT * FROM product WHERE " + likeStatement + ";";
+        logger.newEntry("SQL statement: " + sql);
         return sql;
     }
 
     private List<String> getValidKeywords(String searchString) {
-        String lowerCaseSearchString = 
-            searchString.toLowerCase();
-        String keywords[] = 
-            splitSearchStringBySpace(lowerCaseSearchString);
-        List<String> arrayListOfKeywords = 
-            convertStringArrayToArrayList(keywords);
-        List<String> validKeywords = 
-            removeSmallKeywords(arrayListOfKeywords);
+        String lowerCaseSearchString = searchString.toLowerCase();
+        String keywords[] = splitSearchStringBySpace(lowerCaseSearchString);
+        List<String> arrayListOfKeywords = convertStringArrayToArrayList(keywords);
+        List<String> validKeywords = removeSmallKeywords(arrayListOfKeywords);
         return validKeywords;
     }
 
-    private List<SearchResult> getResultsAsObjects(List<String> results){
-        String result = null;
+    private List<SearchResult> getResultsAsObjects(List<HashMap<String, Object>> resultSet){
         List<SearchResult> resultsAsObjects = new ArrayList<>();
-        Iterator<String> itr = results.iterator();
+        Iterator<HashMap<String, Object>> itr = resultSet.iterator();
         while(itr.hasNext()){
-            result = itr.next();
-            SearchResult sr = new SearchResult(result);
-            resultsAsObjects.add(sr);
+            HashMap<String, Object> row = itr.next();
+            logger.newEntry("Row: " + row);
+            // SearchResult sr = new SearchResult(result);
+            // resultsAsObjects.add(sr);
         }
             
         return resultsAsObjects;

@@ -21,27 +21,20 @@ import org.apache.ibatis.jdbc.ScriptRunner;
 
 public class TestEnvironment {
     
-    private TestLogger testLogger;
-    
-    Database database;
-
+    private TestLogger testLogger = new TestLogger();
+    private jdbcProcessorTemplate jdbcProcessor;
     static final String TEST_DATA_FOLDER = "src/test/java/com/company/resources/";
     
     public TestEnvironment(Database database) { 
-
-        this.database = database;
-
-        testLogger = new TestLogger();
         database.setLogger(testLogger);
+        jdbcProcessor = new jdbcProcessorTemplate(database);
+        database.setJdbcProcessor(jdbcProcessor);
         initialize();
         
     }
 
     public void initialize() {
-        jdbcProcessorTemplate jdbcProcessor = new jdbcProcessorTemplate(database);
-        jdbcProcessor.setLogger(testLogger);
         jdbcProcessor.connection(new jdbcConnectionProcessor(){
-        
             @Override
             public void connection() throws SQLException {
 
