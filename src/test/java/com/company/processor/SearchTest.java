@@ -2,6 +2,8 @@ package com.company.processor;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import com.company.database.Database;
 import com.company.database.TestEnvironment;
 
@@ -26,10 +28,19 @@ public class SearchTest {
     }
 
     @Test
-    public void processSearchStringTest() throws Exception {
+    public void exactProductMatchSearch() throws Exception {
         
+        String searchString = "Wine - Vineland Estate Semi - Dry";
         Search search = new Search(database);
-        search.go("Wine - Vineland Estate Semi - Dry");
-        assertEquals(1, 0);
+        List<SearchResult> searchResults = search.go(searchString);
+        assertEquals(searchResults.size(), 85);
+
+        SearchResult bestMatch = searchResults.get(0);
+        String expectedResult = searchString;
+        assertEquals(bestMatch.getTitle(), expectedResult);
+        
+        Double expectedSimilarity = 1.0;
+        assertEquals(bestMatch.getSimilarity(), expectedSimilarity);
     }
+    
 }

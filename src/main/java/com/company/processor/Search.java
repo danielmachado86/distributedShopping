@@ -64,9 +64,8 @@ public class Search {
         Iterator<HashMap<String, Object>> itr = resultSet.iterator();
         while(itr.hasNext()){
             HashMap<String, Object> row = itr.next();
-            logger.newEntry("Row: " + row);
-            // SearchResult sr = new SearchResult(result);
-            // resultsAsObjects.add(sr);
+            SearchResult sr = new SearchResult((String) row.get("title"));
+            resultsAsObjects.add(sr);
         }
             
         return resultsAsObjects;
@@ -93,13 +92,6 @@ public class Search {
     private List<SearchResult> sortResults(List<SearchResult> results) {
         Collections.sort(results);
         Collections.reverse(results);
-        Iterator<SearchResult> itr1 = results.iterator();
-        SearchResult sr = null;
-        String format = "%-48s%s%n";
-        while(itr1.hasNext()){
-            sr = itr1.next();
-            System.out.printf(format, "Producto: " + sr.getTitle(), "Similaridad: " + sr.getSimilarity().toString());
-        }
         return results;
     }
 
@@ -130,6 +122,8 @@ public class Search {
 
 class SearchResult implements Comparable<SearchResult>{
 
+    private int id;
+    private int brand;
     private String title;
     private Double similarity = null;
 
