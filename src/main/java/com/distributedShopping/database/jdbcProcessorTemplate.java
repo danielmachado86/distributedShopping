@@ -1,9 +1,9 @@
-package com.company.database;
+package com.distributedShopping.database;
 
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.company.resources.Logger;
+import com.distributedShopping.resources.Logger;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -1,4 +1,4 @@
-package com.company.database;
+package com.distributedShopping.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

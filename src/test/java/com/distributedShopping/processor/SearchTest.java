@@ -1,11 +1,11 @@
-package com.company.processor;
+package com.distributedShopping.processor;
 
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import com.company.database.Database;
-import com.company.database.TestEnvironment;
+import com.distributedShopping.database.Database;
+import com.distributedShopping.database.TestEnvironment;
 
 import org.junit.*;
 import org.testcontainers.containers.PostgreSQLContainer;

@@ -1,11 +1,11 @@
-package com.company.processor;
+package com.distributedShopping.processor;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.company.database.Database;
-import com.company.resources.Logger;
+import com.distributedShopping.database.Database;
+import com.distributedShopping.resources.Logger;
 
 import java.util.Arrays;
 import java.util.Collections;

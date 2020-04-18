@@ -1,4 +1,4 @@
-package com.company.resources;
+package com.distributedShopping.resources;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;

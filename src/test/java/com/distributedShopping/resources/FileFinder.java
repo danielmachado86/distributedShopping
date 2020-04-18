@@ -1,4 +1,4 @@
-package com.company.resources;
+package com.distributedShopping.resources;
 
 import java.io.IOException;
 import java.nio.file.Files;

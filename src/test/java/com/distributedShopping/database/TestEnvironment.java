@@ -1,4 +1,4 @@
-package com.company.database;
+package com.distributedShopping.database;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
-import com.company.resources.FileFinder;
-import com.company.resources.TestLogger;
+import com.distributedShopping.resources.FileFinder;
+import com.distributedShopping.resources.TestLogger;
 
 import org.apache.ibatis.jdbc.ScriptRunner;
 
@@ -23,7 +23,7 @@ public class TestEnvironment {
     
     private TestLogger testLogger = new TestLogger();
     private jdbcProcessorTemplate jdbcProcessor;
-    static final String TEST_DATA_FOLDER = "src/test/java/com/company/resources/";
+    static final String TEST_DATA_FOLDER = "src/test/java/com/distributedShopping/resources/";
     
     public TestEnvironment(Database database) { 
         database.setLogger(testLogger);

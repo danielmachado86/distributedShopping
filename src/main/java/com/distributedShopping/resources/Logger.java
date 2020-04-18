@@ -1,4 +1,4 @@
-package com.company.resources;
+package com.distributedShopping.resources;
 
 public interface Logger {
 

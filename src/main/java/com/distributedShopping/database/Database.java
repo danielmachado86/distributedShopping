@@ -1,4 +1,4 @@
-package com.company.database;
+package com.distributedShopping.database;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -6,8 +6,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.company.resources.Logger;
-import com.company.resources.ProductionLogger;
+import com.distributedShopping.resources.Logger;
+import com.distributedShopping.resources.ProductionLogger;
 
 public class Database {
 
