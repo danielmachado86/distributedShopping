@@ -29,7 +29,7 @@ public class Search {
         List<String> validKeywords = getValidKeywords(searchString);
         String sqlString = buildQueryString(validKeywords);
         List<HashMap<String, Object>> dbResults = database.query(sqlString);
-        List<SearchResult> resultsAsObjects = getResultsAsObjects(dbResults);
+        List<SearchResult> resultsAsObjects = convertResultsToObjects(dbResults);
         List<SearchResult> processedResults = calculateStringSimilarity(searchString, resultsAsObjects);
         List<SearchResult> sortedResults = sortResults(processedResults);
         return sortedResults;
@@ -59,7 +59,7 @@ public class Search {
         return validKeywords;
     }
 
-    private List<SearchResult> getResultsAsObjects(List<HashMap<String, Object>> resultSet){
+    private List<SearchResult> convertResultsToObjects(List<HashMap<String, Object>> resultSet){
         List<SearchResult> resultsAsObjects = new ArrayList<>();
         Iterator<HashMap<String, Object>> itr = resultSet.iterator();
         while(itr.hasNext()){
@@ -122,8 +122,8 @@ public class Search {
 
 class SearchResult implements Comparable<SearchResult>{
 
-    private int id;
-    private int brand;
+    private Integer id;
+    private Integer brand;
     private String title;
     private Double similarity = null;
 
@@ -135,16 +135,27 @@ class SearchResult implements Comparable<SearchResult>{
     public int compareTo(SearchResult o) {
         return this.getSimilarity().compareTo(o.getSimilarity());
     }
-
+    
+    public void setId(Integer id) {
+        this.id = id;
+    }
+    public void setBrand(Integer brand) {
+        this.brand = brand;
+    }
     public void setSimilarity(Double similarity) {
         this.similarity = similarity;
     }
 
-    public Double getSimilarity() {
-        return similarity;
+    public Integer getId() {
+        return id;
     }
-
+    public Integer getBrand() {
+        return brand;
+    }
     public String getTitle() {
         return title;
+    }
+    public Double getSimilarity() {
+        return similarity;
     }
 }
