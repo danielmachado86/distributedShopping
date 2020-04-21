@@ -59,12 +59,17 @@ public class Search {
         return validKeywords;
     }
 
-    private List<SearchResult> convertResultsToObjects(List<HashMap<String, Object>> resultSet){
+    private List<SearchResult> convertResultsToObjects(
+                    List<HashMap<String, Object>> resultSet){
         List<SearchResult> resultsAsObjects = new ArrayList<>();
         Iterator<HashMap<String, Object>> itr = resultSet.iterator();
         while(itr.hasNext()){
             HashMap<String, Object> row = itr.next();
-            SearchResult sr = new SearchResult((String) row.get("title"));
+            SearchResult sr = new SearchResult(
+                    (Integer) row.get("id"),
+                    (Integer) row.get("brand"),
+                    (String) row.get("title")
+            );
             resultsAsObjects.add(sr);
         }
             
@@ -128,6 +133,8 @@ class SearchResult implements Comparable<SearchResult>{
     public Double similarity = null;
 
     SearchResult(Integer id, Integer brand, String title) {
+        this.id = id;
+        this.brand = brand;
         this.title = title;
     }
 
