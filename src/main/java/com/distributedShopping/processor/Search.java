@@ -77,13 +77,13 @@ public class Search {
         Iterator<SearchResult> itr = results.iterator();
         while(itr.hasNext()){
             result = itr.next();
-            title = result.getTitle();
+            title = result.title;
             JaroWinklerDistance distanceContainer = new JaroWinklerDistance();
             Double distanceIndex = 
             distanceContainer.apply(
                 searchString.toLowerCase(), title.toLowerCase()
             );
-            result.setSimilarity(distanceIndex);
+            result.similarity = distanceIndex;
         }
             
         return results;
@@ -122,40 +122,19 @@ public class Search {
 
 class SearchResult implements Comparable<SearchResult>{
 
-    private Integer id;
-    private Integer brand;
-    private String title;
-    private Double similarity = null;
+    public Integer id;
+    public Integer brand;
+    public String title;
+    public Double similarity = null;
 
-    SearchResult(String title) {
+    SearchResult(Integer id, Integer brand, String title) {
         this.title = title;
     }
 
     @Override
     public int compareTo(SearchResult o) {
-        return this.getSimilarity().compareTo(o.getSimilarity());
+        return similarity.compareTo(o.similarity);
     }
     
-    public void setId(Integer id) {
-        this.id = id;
-    }
-    public void setBrand(Integer brand) {
-        this.brand = brand;
-    }
-    public void setSimilarity(Double similarity) {
-        this.similarity = similarity;
-    }
 
-    public Integer getId() {
-        return id;
-    }
-    public Integer getBrand() {
-        return brand;
-    }
-    public String getTitle() {
-        return title;
-    }
-    public Double getSimilarity() {
-        return similarity;
-    }
 }

@@ -37,10 +37,10 @@ public class SearchTest {
 
         SearchResult bestMatch = searchResults.get(0);
         String expectedResult = searchString;
-        assertEquals(bestMatch.getTitle(), expectedResult);
+        assertEquals(bestMatch.title, expectedResult);
         
         Double expectedSimilarity = 1.0;
-        assertEquals(bestMatch.getSimilarity(), expectedSimilarity);
+        assertEquals(bestMatch.similarity, expectedSimilarity);
     }
     
 }
