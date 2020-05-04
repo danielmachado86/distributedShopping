@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import com.distributedShopping.database.Database;
+import com.distributedShopping.database.RelationalDatabase;
 import com.distributedShopping.database.TestEnvironment;
 
 import org.junit.*;
@@ -12,7 +12,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 public class SearchTest {
 
-    private Database database;
+    private RelationalDatabase database;
 
     @Rule
     public PostgreSQLContainer postgresContainer = new PostgreSQLContainer();
@@ -23,7 +23,7 @@ public class SearchTest {
         String username = postgresContainer.getUsername();
         String password = postgresContainer.getPassword();
 
-        database = new Database(containerUrl, username, password);
+        database = new RelationalDatabase(containerUrl, username, password);
         new TestEnvironment(database);
     }
 
@@ -33,14 +33,20 @@ public class SearchTest {
         String searchString = "Wine - Vineland Estate Semi - Dry";
         Search search = new Search(database);
         List<SearchResult> searchResults = search.go(searchString);
-        assertEquals(searchResults.size(), 85);
+        int expectedResultsSize = 100;
+        assertEquals(expectedResultsSize, searchResults.size());
 
         SearchResult bestMatch = searchResults.get(0);
-        String expectedResult = searchString;
-        assertEquals(bestMatch.title, expectedResult);
+        assertEquals(searchString, bestMatch.product.title);
         
         Double expectedSimilarity = 1.0;
-        assertEquals(bestMatch.similarity, expectedSimilarity);
+        assertEquals(expectedSimilarity, bestMatch.similarity);
+
+        Integer expectedBrand = 98;
+        assertEquals(expectedBrand, bestMatch.product.brand);
+
+        Integer expectedId = 791;
+        assertEquals(expectedId, bestMatch.product.id);
     }
     
 }

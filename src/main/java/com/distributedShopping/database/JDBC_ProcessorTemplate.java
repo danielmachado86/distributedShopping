@@ -10,18 +10,18 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class jdbcProcessorTemplate {
+public class JDBC_ProcessorTemplate {
 
     private Logger logger;
-    private Database database;
+    private RelationalDatabase database;
     private Connection connection;
 
-    public jdbcProcessorTemplate(Database database) {
+    public JDBC_ProcessorTemplate(RelationalDatabase database) {
         this.database = database;
         logger = database.getLogger();
 	}
 
-	public Connection connection(jdbcConnectionProcessor processor) {
+	public Connection connection(JDBC_ConnectionProcessor processor) {
         SQLException processSQLException = null;
         connection = null;
         try {
@@ -54,7 +54,7 @@ public class jdbcProcessorTemplate {
         return connection;
     }
     
-    public void createStatement(String sql, jdbcCreateStatementProcessor processor) {
+    public void createStatement(String sql, JDBC_CreateObjectProcessor processor) {
         SQLException processSQLException = null;
         Statement statement = null;
         try {
@@ -84,7 +84,7 @@ public class jdbcProcessorTemplate {
         }
     } 
     
-    public void statement(String sql, jdbcStatementProcessor processor) {
+    public void selectStatement(String sql, JDBC_SelectProcessor processor) {
         SQLException processSQLException = null;
         PreparedStatement statement = null;
         ResultSet resultSet = null;
@@ -94,6 +94,37 @@ public class jdbcProcessorTemplate {
             resultSet = statement.executeQuery();
             logger.newEntry("Query Statement ejecutado");
             processor.statement(resultSet);
+        } catch (SQLException e) {
+            processSQLException = e;
+        } finally {
+            if (processSQLException != null){
+                logger.newEntry(processSQLException.getMessage());
+            }
+            if (connection != null){
+                try {
+                    statement.close();
+                    logger.newEntry("Statement ha sido cerrado");
+                } catch (SQLException e) {
+                    if (processSQLException != null){
+                        logger.newEntry(processSQLException.getMessage());
+                    }else{
+                        logger.newEntry(e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+    
+    public void insertStatement(String sql, JDBC_InsertProcessor processor) {
+        SQLException processSQLException = null;
+        PreparedStatement statement = null;
+        Integer result = 0;
+        try {
+            statement = connection.prepareStatement(sql);
+            logger.newEntry("Nuevo Statement creado");
+            result = statement.executeUpdate();
+            logger.newEntry("Insert Statement ejecutado");
+            processor.statement(result);
         } catch (SQLException e) {
             processSQLException = e;
         } finally {

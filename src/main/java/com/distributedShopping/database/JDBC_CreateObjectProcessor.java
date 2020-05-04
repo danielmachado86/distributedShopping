@@ -2,7 +2,7 @@ package com.distributedShopping.database;
 
 import java.sql.SQLException;
 
-public interface jdbcCreateStatementProcessor {
+public interface JDBC_CreateObjectProcessor {
 
 public void createStatement() throws SQLException;
 
