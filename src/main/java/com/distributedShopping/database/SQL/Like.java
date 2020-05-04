@@ -12,7 +12,6 @@ public class Like {
 
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
         return condition;
     }
 

@@ -1,6 +1,5 @@
 package com.distributedShopping.resources;
 
-import java.util.ArrayList;
 
 public class Metadata {
 

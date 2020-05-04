@@ -43,7 +43,7 @@ public class SearchTest {
         assertEquals(expectedSimilarity, bestMatch.similarity);
 
         Integer expectedBrand = 98;
-        assertEquals(expectedBrand, bestMatch.product.brand);
+        assertEquals(expectedBrand, bestMatch.product.brandid);
 
         Integer expectedId = 791;
         assertEquals(expectedId, bestMatch.product.id);

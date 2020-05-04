@@ -13,7 +13,6 @@ public class GT implements Condition {
 
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
         return condition;
     }
 

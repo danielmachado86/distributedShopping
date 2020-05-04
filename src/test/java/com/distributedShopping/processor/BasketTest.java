@@ -37,7 +37,7 @@ public class BasketTest {
         Double selectedQuantity = 10.0;
         BasketData basketItem = new BasketData(addressId, productId, selectedQuantity);
         BasketService basket = new BasketService(database);
-        Boolean result = basket.insert(basketItem);
+        Boolean result = basket.newItem(basketItem);
 
         assertTrue(result);
 
@@ -51,15 +51,17 @@ public class BasketTest {
         Double selectedQuantity = 10.0;
         BasketData basketItem = new BasketData(addressId, productId, selectedQuantity);
         BasketService basket = new BasketService(database);
-        BasketData result = basket.update(basketItem);
+        BasketData result = basket.updateItem(basketItem);
         
         Integer expectedAddressId = 1;
-        Integer expectedProductId = 1;
-        Double expectedSelectedQuantity = 10.0;
-
         assertEquals(expectedAddressId, result.addressId);
-        assertEquals(expectedProductId, result.addressId);
+
+        Integer expectedProductId = 1;
+        assertEquals(expectedProductId, result.productId);
+        
+        Double expectedSelectedQuantity = 10.0;
         assertEquals(expectedSelectedQuantity, result.selectedQuantity);
+
 
     }
 

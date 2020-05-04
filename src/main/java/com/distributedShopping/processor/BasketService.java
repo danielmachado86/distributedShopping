@@ -1,5 +1,6 @@
 package com.distributedShopping.processor;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,13 +21,13 @@ public class BasketService {
         this.database = database;
     }
 
-    public Boolean insert(BasketData basketItem) {
+    public Boolean newItem(BasketData basketItem) {
         Boolean result = database.insert(basketItem);
         return result;
     }
 
     
-    public BasketData update(BasketData basketItem) {
+    public BasketData updateItem(BasketData basketItem) {
 
         BasketData updatedBasketItem = (BasketData) database.update(basketItem);
         
@@ -50,17 +51,26 @@ public class BasketService {
     }
 
     private List<BasketData> convertResultsToObjects(
-        List<HashMap<String, Object>> resultSet){
+                List<HashMap<String, Object>> resultSet){
         List<BasketData> resultsAsObjects = new ArrayList<>();
         Iterator<HashMap<String, Object>> itr = resultSet.iterator();
+
+        Field[] fieldsArray = BasketData.class.getDeclaredFields();
+        
+
         while(itr.hasNext()){
             HashMap<String, Object> row = itr.next();
-            BasketData sr = new BasketData(
-                    (Integer) row.get("addressid"),
-                    (Integer) row.get("productid"),
-                    (Double) row.get("selectedquantity")
-            );
-            resultsAsObjects.add(sr);
+            BasketData basketData = new BasketData();
+            for (Field field: fieldsArray){
+                if(field.getName() != "METADATA"){
+                    try {
+                        field.set(basketData, row.get(field.getName().toLowerCase()));;
+                    } catch (IllegalAccessException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }
+            }
+            resultsAsObjects.add(basketData);
         }
 
         return resultsAsObjects;

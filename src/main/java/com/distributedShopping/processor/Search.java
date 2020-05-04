@@ -1,5 +1,6 @@
 package com.distributedShopping.processor;
 
+import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,13 +87,25 @@ public class Search {
                     List<HashMap<String, Object>> resultSet){
         List<SearchResult> resultsAsObjects = new ArrayList<>();
         Iterator<HashMap<String, Object>> itr = resultSet.iterator();
+
+        Field[] fieldsArray = ProductData.class.getDeclaredFields();
+        
         while(itr.hasNext()){
             HashMap<String, Object> row = itr.next();
-            SearchResult sr = new SearchResult(
-                    (Integer) row.get("id"),
-                    (Integer) row.get("brandid"),
-                    (String) row.get("title")
-            );
+            ProductData product = new ProductData();
+            for (Field field: fieldsArray){
+                if(field.getName() != "METADATA"){
+                    try {
+                        field.set(product, row.get(field.getName().toLowerCase()));;
+                    } catch (IllegalAccessException e) {
+                        System.out.println(e.getMessage()); 
+                    }
+                }
+            }
+            SearchResult sr = new SearchResult(product);
+
+            System.out.println(sr.product.title);
+
             resultsAsObjects.add(sr);
         }
             
@@ -134,8 +147,8 @@ class SearchResult implements Comparable<SearchResult>{
     public ProductData product;
     public Double similarity = 0.0;
 
-    SearchResult(Integer id, Integer brand, String title) {
-        product = new ProductData(id, brand, title);
+    SearchResult(ProductData product) {
+        this.product = product;
     }
 
     @Override
